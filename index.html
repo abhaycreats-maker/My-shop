@@ -1,0 +1,43 @@
+Luxury Store body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; } 
+
+header { padding: 20px; font-family: 'Playfair Display', serif; font-size: 28px; text-align: center; }
+
+.container { display: grid; grid-template-columns: 250px 1fr; gap: 20px; padding: 20px; }
+
+.sidebar { backdrop-filter: blur(20px); background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; }
+
+.products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 20px; }
+
+.card { backdrop-filter: blur(15px); background: rgba(255,255,255,0.08); border-radius: 20px; padding: 15px; transition: 0.4s; }
+
+.card:hover { transform: scale(1.05); }
+
+button { background: linear-gradient(45deg, #ff6a00, #ee0979); border: none; padding: 10px; color: white; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+
+button:hover { transform: translateY(-3px); }
+
+.cart { position: fixed; right: 20px; top: 20px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 10px; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
+
+.modal-content { background: #111; margin: 10% auto; padding: 20px; width: 300px; border-radius: 10px; }
+
+input, textarea { width: 100%; margin: 10px 0; padding: 10px; border-radius: 8px; border: none; } 
+
+Luxury Store ✨ 
+
+Cart: 0
+
+Filters All Premium Budget 
+
+Checkout Place Order 
+
+emailjs.init("YOUR_PUBLIC_KEY"); const products = [ {name:"Premium Watch", price:5000, type:"premium"}, {name:"Luxury Shoes", price:3000, type:"premium"}, {name:"Casual Shirt", price:800, type:"budget"}, {name:"Stylish Bag", price:1200, type:"budget"} ]; let cart = []; function renderProducts(list) { const container = document.getElementById("productList"); container.innerHTML = ""; list.forEach((p,i)=>{ container.innerHTML += ` 
+
+${p.name} 
+
+₹${p.price}
+
+Add to Cart 
+
+`; }); } function addToCart(i){ cart.push(products[i]); document.getElementById("cartCount").innerText = cart.length; } function filterProducts(type){ if(type==='all') return renderProducts(products); renderProducts(products.filter(p=>p.type===type)); } function openCheckout(){ document.getElementById("checkoutModal").style.display='block'; } function sendOrder(){ const name = document.getElementById("name").value; const email = document.getElementById("email").value; const address = document.getElementById("address").value; const templateParams = { name: name, email: email, address: address, orders: JSON.stringify(cart) }; emailjs.send("YOUR_SERVICE_ID","YOUR_TEMPLATE_ID", templateParams) .then(()=>{ alert("Order sent to your email!"); }); } renderProducts(products); 
