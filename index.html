@@ -1,212 +1,115 @@
-<!DOCTYPE html>
-<html lang="en">
+  <!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Luxury Store</title>
+<title>Luxury Store</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script><style>
+body { margin:0; font-family:'Poppins',sans-serif; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white; overflow-x:hidden; }
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+.hero { height:60vh; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; }
+.hero h1 { font-family:'Playfair Display',serif; font-size:48px; }
 
-<!-- FIXED EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+.products { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:20px; }
 
-<style>
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: white;
-}
+.card { background:rgba(255,255,255,0.08); border-radius:20px; overflow:hidden; transition:0.4s; transform:translateY(50px); opacity:0; }
+.card.show { transform:translateY(0); opacity:1; }
+.card:hover { transform:scale(1.05); }
+.card img { width:100%; height:200px; object-fit:cover; }
+.card-content { padding:15px; }
 
-header {
-  padding: 20px;
-  font-family: 'Playfair Display', serif;
-  font-size: 28px;
-  text-align: center;
-}
+button { background:linear-gradient(45deg,#ff6a00,#ee0979); border:none; padding:10px; color:white; border-radius:10px; cursor:pointer; }
+button.disabled { background:gray; cursor:not-allowed; }
 
-.container {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 20px;
-  padding: 20px;
-}
+.cart { position:fixed; right:20px; top:20px; background:#0008; padding:10px; border-radius:10px; cursor:pointer; }
 
-.sidebar {
-  backdrop-filter: blur(20px);
-  background: rgba(255,255,255,0.05);
-  padding: 20px;
-  border-radius: 20px;
-}
+.cart-page { position:fixed; right:0; top:0; width:350px; height:100%; background:#111; padding:20px; display:none; overflow:auto; }
 
-.products {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-  gap: 20px;
-}
+.cart-item { display:flex; justify-content:space-between; margin:10px 0; }
 
-.card {
-  backdrop-filter: blur(15px);
-  background: rgba(255,255,255,0.08);
-  border-radius: 20px;
-  padding: 15px;
-  transition: 0.4s;
-}
+.total { margin-top:20px; font-weight:bold; }
 
-.card:hover {
-  transform: scale(1.05);
-}
+.product-detail { position:fixed; top:0; left:0; width:100%; height:100%; background:#000c; display:none; align-items:center; justify-content:center; }
+.product-box { background:#111; padding:20px; border-radius:20px; width:300px; }
 
-button {
-  background: linear-gradient(45deg, #ff6a00, #ee0979);
-  border: none;
-  padding: 10px;
-  color: white;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-button:hover {
-  transform: translateY(-3px);
-}
-
-.cart {
-  position: fixed;
-  right: 20px;
-  top: 20px;
-  background: rgba(0,0,0,0.6);
-  padding: 15px;
-  border-radius: 10px;
-}
-
-.checkout-btn {
-  position: fixed;
-  right: 20px;
-  top: 80px;
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-}
-
-.modal-content {
-  background: #111;
-  margin: 10% auto;
-  padding: 20px;
-  width: 300px;
-  border-radius: 10px;
-}
-
-input, textarea {
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-}
-</style>
-</head>
-
-<body>
-
-<header>Luxury Store ✨</header>
-
-<div class="cart">Cart: <span id="cartCount">0</span></div>
-<button class="checkout-btn" onclick="openCheckout()">Checkout</button>
-
-<div class="container">
-  <div class="sidebar">
-    <h3>Filters</h3>
-    <button onclick="filterProducts('all')">All</button>
-    <button onclick="filterProducts('premium')">Premium</button>
-    <button onclick="filterProducts('budget')">Budget</button>
-  </div>
-
-  <div class="products" id="productList"></div>
-</div>
-
-<div class="modal" id="checkoutModal">
-  <div class="modal-content">
-    <h3>Checkout</h3>
-    <input id="name" placeholder="Your Name" />
-    <input id="email" placeholder="Email" />
-    <textarea id="address" placeholder="Address"></textarea>
-    <button onclick="sendOrder()">Place Order</button>
-  </div>
-</div>
-
-<script>
-(function(){
-  emailjs.init("YOUR_PUBLIC_KEY"); // replace this
-})();
-
+</style></head>
+<body><div class="hero">
+<h1>Luxury Experience</h1>
+<p>Premium products</p>
+</div><div class="cart" onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</div><div class="products" id="productList"></div><div class="cart-page" id="cartPage">
+<h2>Cart</h2>
+<div id="cartItems"></div>
+<div class="total" id="totalPrice"></div>
+<button onclick="openCheckout()">Checkout</button>
+</div><div class="product-detail" id="productDetail">
+<div class="product-box" id="detailBox"></div>
+</div><script>
 const products = [
-  {name:"Premium Watch", price:5000, type:"premium"},
-  {name:"Luxury Shoes", price:3000, type:"premium"},
-  {name:"Casual Shirt", price:800, type:"budget"},
-  {name:"Stylish Bag", price:1200, type:"budget"}
+{name:"Watch",price:5000,img:"https://images.unsplash.com/photo-1523275335684-37898b6baf30"},
+{name:"Shoes",price:3000,img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff"},
+{name:"Shirt",price:800,img:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab"}
 ];
 
-let cart = [];
+let cart=[];
 
-function renderProducts(list) {
-  const container = document.getElementById("productList");
-  container.innerHTML = "";
-  list.forEach((p,i)=>{
-    container.innerHTML += `
-      <div class="card">
-        <h3>${p.name}</h3>
-        <p>₹${p.price}</p>
-        <button onclick="addToCart(${i})">Add to Cart</button>
-      </div>
-    `;
-  });
+function renderProducts(){
+const el=document.getElementById('productList'); el.innerHTML='';
+products.forEach((p,i)=>{
+const added=cart.find(x=>x.name===p.name);
+el.innerHTML+=`<div class="card" onclick="openDetail(${i})">
+<img src="${p.img}">
+<div class="card-content">
+<h3>${p.name}</h3>
+<p>₹${p.price}</p>
+<button onclick="event.stopPropagation(); addToCart(${i})" class="${added?'disabled':''}">${added?'Added':'Add to Cart'}</button>
+</div></div>`;
+});
+animateCards();
 }
 
 function addToCart(i){
-  cart.push(products[i]);
-  document.getElementById("cartCount").innerText = cart.length;
+cart.push(products[i]);
+document.getElementById('cartCount').innerText=cart.length;
+renderProducts(); renderCart();
 }
 
-function filterProducts(type){
-  if(type==='all') return renderProducts(products);
-  renderProducts(products.filter(p=>p.type===type));
+function removeItem(index){
+cart.splice(index,1);
+document.getElementById('cartCount').innerText=cart.length;
+renderCart(); renderProducts();
 }
 
-function openCheckout(){
-  document.getElementById("checkoutModal").style.display='block';
+function renderCart(){
+const el=document.getElementById('cartItems'); el.innerHTML='';
+let total=0;
+cart.forEach((item,i)=>{
+total+=item.price;
+el.innerHTML+=`<div class="cart-item">${item.name} ₹${item.price} <button onclick="removeItem(${i})">X</button></div>`;
+});
+document.getElementById('totalPrice').innerText="Total: ₹"+total;
 }
 
-function sendOrder(){
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-  const address = document.getElementById("address").value;
-
-  const templateParams = {
-    name: name,
-    email: email,
-    address: address,
-    orders: JSON.stringify(cart)
-  };
-
-  emailjs.send("YOUR_SERVICE_ID","YOUR_TEMPLATE_ID", templateParams)
-    .then(()=>{
-      alert("Order sent successfully!");
-    })
-    .catch(err=>{
-      alert("Error: " + err);
-    });
+function toggleCart(){
+const c=document.getElementById('cartPage');
+c.style.display=c.style.display==='block'?'none':'block';
 }
 
-renderProducts(products);
-</script>
+function openDetail(i){
+const box=document.getElementById('detailBox');
+const p=products[i];
+box.innerHTML=`<img src="${p.img}" style="width:100%"><h2>${p.name}</h2><p>₹${p.price}</p><button onclick="addToCart(${i})">Add to Cart</button>`;
+document.getElementById('productDetail').style.display='flex';
+}
 
-</body>
+window.onclick=(e)=>{
+if(e.target.id==='productDetail') document.getElementById('productDetail').style.display='none';
+}
+
+function animateCards(){
+document.querySelectorAll('.card').forEach((card,i)=>{
+setTimeout(()=>card.classList.add('show'), i*100);
+});
+}
+
+renderProducts();
+</script></body>
 </html>
