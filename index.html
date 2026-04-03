@@ -1,43 +1,212 @@
-Luxury Store body { margin: 0; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; } 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Luxury Store</title>
 
-header { padding: 20px; font-family: 'Playfair Display', serif; font-size: 28px; text-align: center; }
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 
-.container { display: grid; grid-template-columns: 250px 1fr; gap: 20px; padding: 20px; }
+<!-- FIXED EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-.sidebar { backdrop-filter: blur(20px); background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; }
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: white;
+}
 
-.products { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 20px; }
+header {
+  padding: 20px;
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  text-align: center;
+}
 
-.card { backdrop-filter: blur(15px); background: rgba(255,255,255,0.08); border-radius: 20px; padding: 15px; transition: 0.4s; }
+.container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 20px;
+  padding: 20px;
+}
 
-.card:hover { transform: scale(1.05); }
+.sidebar {
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 20px;
+}
 
-button { background: linear-gradient(45deg, #ff6a00, #ee0979); border: none; padding: 10px; color: white; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+  gap: 20px;
+}
 
-button:hover { transform: translateY(-3px); }
+.card {
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 15px;
+  transition: 0.4s;
+}
 
-.cart { position: fixed; right: 20px; top: 20px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 10px; }
+.card:hover {
+  transform: scale(1.05);
+}
 
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
+button {
+  background: linear-gradient(45deg, #ff6a00, #ee0979);
+  border: none;
+  padding: 10px;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
 
-.modal-content { background: #111; margin: 10% auto; padding: 20px; width: 300px; border-radius: 10px; }
+button:hover {
+  transform: translateY(-3px);
+}
 
-input, textarea { width: 100%; margin: 10px 0; padding: 10px; border-radius: 8px; border: none; } 
+.cart {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  background: rgba(0,0,0,0.6);
+  padding: 15px;
+  border-radius: 10px;
+}
 
-Luxury Store ✨ 
+.checkout-btn {
+  position: fixed;
+  right: 20px;
+  top: 80px;
+}
 
-Cart: 0
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+}
 
-Filters All Premium Budget 
+.modal-content {
+  background: #111;
+  margin: 10% auto;
+  padding: 20px;
+  width: 300px;
+  border-radius: 10px;
+}
 
-Checkout Place Order 
+input, textarea {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+}
+</style>
+</head>
 
-emailjs.init("YOUR_PUBLIC_KEY"); const products = [ {name:"Premium Watch", price:5000, type:"premium"}, {name:"Luxury Shoes", price:3000, type:"premium"}, {name:"Casual Shirt", price:800, type:"budget"}, {name:"Stylish Bag", price:1200, type:"budget"} ]; let cart = []; function renderProducts(list) { const container = document.getElementById("productList"); container.innerHTML = ""; list.forEach((p,i)=>{ container.innerHTML += ` 
+<body>
 
-${p.name} 
+<header>Luxury Store ✨</header>
 
-₹${p.price}
+<div class="cart">Cart: <span id="cartCount">0</span></div>
+<button class="checkout-btn" onclick="openCheckout()">Checkout</button>
 
-Add to Cart 
+<div class="container">
+  <div class="sidebar">
+    <h3>Filters</h3>
+    <button onclick="filterProducts('all')">All</button>
+    <button onclick="filterProducts('premium')">Premium</button>
+    <button onclick="filterProducts('budget')">Budget</button>
+  </div>
 
-`; }); } function addToCart(i){ cart.push(products[i]); document.getElementById("cartCount").innerText = cart.length; } function filterProducts(type){ if(type==='all') return renderProducts(products); renderProducts(products.filter(p=>p.type===type)); } function openCheckout(){ document.getElementById("checkoutModal").style.display='block'; } function sendOrder(){ const name = document.getElementById("name").value; const email = document.getElementById("email").value; const address = document.getElementById("address").value; const templateParams = { name: name, email: email, address: address, orders: JSON.stringify(cart) }; emailjs.send("YOUR_SERVICE_ID","YOUR_TEMPLATE_ID", templateParams) .then(()=>{ alert("Order sent to your email!"); }); } renderProducts(products); 
+  <div class="products" id="productList"></div>
+</div>
+
+<div class="modal" id="checkoutModal">
+  <div class="modal-content">
+    <h3>Checkout</h3>
+    <input id="name" placeholder="Your Name" />
+    <input id="email" placeholder="Email" />
+    <textarea id="address" placeholder="Address"></textarea>
+    <button onclick="sendOrder()">Place Order</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  emailjs.init("YOUR_PUBLIC_KEY"); // replace this
+})();
+
+const products = [
+  {name:"Premium Watch", price:5000, type:"premium"},
+  {name:"Luxury Shoes", price:3000, type:"premium"},
+  {name:"Casual Shirt", price:800, type:"budget"},
+  {name:"Stylish Bag", price:1200, type:"budget"}
+];
+
+let cart = [];
+
+function renderProducts(list) {
+  const container = document.getElementById("productList");
+  container.innerHTML = "";
+  list.forEach((p,i)=>{
+    container.innerHTML += `
+      <div class="card">
+        <h3>${p.name}</h3>
+        <p>₹${p.price}</p>
+        <button onclick="addToCart(${i})">Add to Cart</button>
+      </div>
+    `;
+  });
+}
+
+function addToCart(i){
+  cart.push(products[i]);
+  document.getElementById("cartCount").innerText = cart.length;
+}
+
+function filterProducts(type){
+  if(type==='all') return renderProducts(products);
+  renderProducts(products.filter(p=>p.type===type));
+}
+
+function openCheckout(){
+  document.getElementById("checkoutModal").style.display='block';
+}
+
+function sendOrder(){
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const address = document.getElementById("address").value;
+
+  const templateParams = {
+    name: name,
+    email: email,
+    address: address,
+    orders: JSON.stringify(cart)
+  };
+
+  emailjs.send("YOUR_SERVICE_ID","YOUR_TEMPLATE_ID", templateParams)
+    .then(()=>{
+      alert("Order sent successfully!");
+    })
+    .catch(err=>{
+      alert("Error: " + err);
+    });
+}
+
+renderProducts(products);
+</script>
+
+</body>
+</html>
