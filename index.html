@@ -1,47 +1,50 @@
-  <!DOCTYPE html><html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Luxury Store</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script><style>
+<title>Luxury Store</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"><style>
 body { margin:0; font-family:'Poppins',sans-serif; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white; overflow-x:hidden; }
-
-.hero { height:60vh; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; }
-.hero h1 { font-family:'Playfair Display',serif; font-size:48px; }
-
+.hero { height:60vh; display:flex; align-items:center; justify-content:center; flex-direction:column; }
 .products { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:20px; }
-
 .card { background:rgba(255,255,255,0.08); border-radius:20px; overflow:hidden; transition:0.4s; transform:translateY(50px); opacity:0; }
 .card.show { transform:translateY(0); opacity:1; }
-.card:hover { transform:scale(1.05); }
 .card img { width:100%; height:200px; object-fit:cover; }
 .card-content { padding:15px; }
-
 button { background:linear-gradient(45deg,#ff6a00,#ee0979); border:none; padding:10px; color:white; border-radius:10px; cursor:pointer; }
 button.disabled { background:gray; cursor:not-allowed; }
-
 .cart { position:fixed; right:20px; top:20px; background:#0008; padding:10px; border-radius:10px; cursor:pointer; }
-
 .cart-page { position:fixed; right:0; top:0; width:350px; height:100%; background:#111; padding:20px; display:none; overflow:auto; }
-
 .cart-item { display:flex; justify-content:space-between; margin:10px 0; }
-
 .total { margin-top:20px; font-weight:bold; }
 
-.product-detail { position:fixed; top:0; left:0; width:100%; height:100%; background:#000c; display:none; align-items:center; justify-content:center; }
-.product-box { background:#111; padding:20px; border-radius:20px; width:300px; }
-
+.product-detail, .checkout-page, .order-success { position:fixed; top:0; left:0; width:100%; height:100%; background:#000c; display:none; align-items:center; justify-content:center; z-index:1000; }
+.box { background:#111; padding:20px; border-radius:20px; width:300px; text-align:center; }
+.back-btn { margin-top:10px; background:#555; }
 </style></head>
 <body><div class="hero">
 <h1>Luxury Experience</h1>
 <p>Premium products</p>
-</div><div class="cart" onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</div><div class="products" id="productList"></div><div class="cart-page" id="cartPage">
+</div><div class="cart" onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</div><div class="products" id="productList"></div><!-- CART --><div class="cart-page" id="cartPage">
 <h2>Cart</h2>
 <div id="cartItems"></div>
 <div class="total" id="totalPrice"></div>
 <button onclick="openCheckout()">Checkout</button>
-</div><div class="product-detail" id="productDetail">
-<div class="product-box" id="detailBox"></div>
+<button class="back-btn" onclick="toggleCart()">Close</button>
+</div><!-- PRODUCT DETAIL --><div class="product-detail" id="productDetail">
+<div class="box" id="detailBox"></div>
+</div><!-- CHECKOUT PAGE --><div class="checkout-page" id="checkoutPage">
+<div class="box">
+<h2>Checkout</h2>
+<div id="checkoutSummary"></div>
+<button onclick="placeOrder()">Place Order</button>
+<button class="back-btn" onclick="closeCheckout()">Back to Cart</button>
+</div>
+</div><!-- SUCCESS PAGE --><div class="order-success" id="successPage">
+<div class="box">
+<h2>Order Placed ✅</h2>
+<p>Your order has been successfully placed.</p>
+<button onclick="goHome()">Back to Home</button>
+</div>
 </div><script>
 const products = [
 {name:"Watch",price:5000,img:"https://images.unsplash.com/photo-1523275335684-37898b6baf30"},
@@ -96,13 +99,45 @@ c.style.display=c.style.display==='block'?'none':'block';
 function openDetail(i){
 const box=document.getElementById('detailBox');
 const p=products[i];
-box.innerHTML=`<img src="${p.img}" style="width:100%"><h2>${p.name}</h2><p>₹${p.price}</p><button onclick="addToCart(${i})">Add to Cart</button>`;
+box.innerHTML=`<img src="${p.img}" style="width:100%"><h2>${p.name}</h2><p>₹${p.price}</p><button onclick="addToCart(${i})">Add to Cart</button><br><button class='back-btn' onclick="closeDetail()">Back</button>`;
 document.getElementById('productDetail').style.display='flex';
 }
 
-window.onclick=(e)=>{
-if(e.target.id==='productDetail') document.getElementById('productDetail').style.display='none';
+function closeDetail(){ document.getElementById('productDetail').style.display='none'; }
+
+function openCheckout(){
+if(cart.length===0){ alert("Cart is empty!"); return; }
+let summary=''; let total=0;
+cart.forEach(item=>{ total+=item.price; summary+=`<p>${item.name} - ₹${item.price}</p>`; });
+summary+=`<h3>Total: ₹${total}</h3>`;
+document.getElementById('checkoutSummary').innerHTML=summary;
+document.getElementById('checkoutPage').style.display='flex';
+document.getElementById('cartPage').style.display='none';
 }
+
+function closeCheckout(){
+document.getElementById('checkoutPage').style.display='none';
+document.getElementById('cartPage').style.display='block';
+}
+
+function placeOrder(){
+if(cart.length===0){ alert("Cart is empty!"); return; }
+document.getElementById('checkoutPage').style.display='none';
+document.getElementById('successPage').style.display='flex';
+cart=[];
+document.getElementById('cartCount').innerText=0;
+renderCart(); renderProducts();
+}
+
+function goHome(){
+document.getElementById('successPage').style.display='none';
+document.getElementById('cartPage').style.display='none';
+}
+
+window.onclick=(e)=>{
+if(e.target.id==='productDetail') closeDetail();
+if(e.target.id==='checkoutPage') closeCheckout();
+};
 
 function animateCards(){
 document.querySelectorAll('.card').forEach((card,i)=>{
