@@ -4,202 +4,129 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Luxury Store</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"><style>
 body { margin:0; font-family:'Poppins',sans-serif; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white; overflow-x:hidden; }
-.hero { height:60vh; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+.hero { height:60vh; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; background:linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1604147706283-2b3c2b1c1b75'); background-size:cover; }
+.hero h1 { font-family:'Playfair Display',serif; font-size:52px; }
+
 .products { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:20px; }
-.card { background:rgba(255,255,255,0.08); border-radius:20px; overflow:hidden; transition:0.4s; transform:translateY(50px); opacity:0; }
-.card.show { transform:translateY(0); opacity:1; }
-.card img { width:100%; height:200px; object-fit:cover; }
+.card {
+  background:rgba(255,255,255,0.08);
+  border-radius:20px;
+  overflow:hidden;
+  transition:transform 0.4s, box-shadow 0.4s;
+  transform-style:preserve-3d;
+}
+.card:hover {
+  transform:rotateY(10deg) rotateX(5deg) scale(1.05);
+  box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
+.card img { width:100%; height:200px; object-fit:cover; transition:0.4s; }
+.card:hover img { transform:scale(1.1); }
 .card-content { padding:15px; }
+
 button { background:linear-gradient(45deg,#ff6a00,#ee0979); border:none; padding:10px; color:white; border-radius:10px; cursor:pointer; }
 button.disabled { background:gray; cursor:not-allowed; }
+
 .cart { position:fixed; right:20px; top:20px; background:#0008; padding:10px; border-radius:10px; cursor:pointer; }
 .cart-page { position:fixed; right:0; top:0; width:350px; height:100%; background:#111; padding:20px; display:none; overflow:auto; }
-.cart-item { display:flex; justify-content:space-between; margin:10px 0; }
-.total { margin-top:20px; font-weight:bold; }
 
-.product-detail, .checkout-page, .order-success { position:fixed; top:0; left:0; width:100%; height:100%; background:#000c; display:none; align-items:center; justify-content:center; z-index:1000; }
+.product-detail, .checkout-page, .order-success { position:fixed; top:0; left:0; width:100%; height:100%; background:#000c; display:none; align-items:center; justify-content:center; }
 .box { background:#111; padding:20px; border-radius:20px; width:320px; text-align:center; }
-.back-btn { margin-top:10px; background:#555; }
 
-/* image gallery */
-.gallery img { width:100%; height:200px; object-fit:cover; border-radius:10px; }
-.thumbs { display:flex; gap:5px; margin-top:8px; }
-.thumbs img { width:60px; height:60px; object-fit:cover; cursor:pointer; border-radius:6px; opacity:0.7; }
-.thumbs img:hover { opacity:1; }
+/* SLIDER */
+.slider { position:relative; overflow:hidden; }
+.slider img { width:100%; height:200px; object-fit:cover; border-radius:10px; transition:transform 0.3s; }
+.slider img:hover { transform:scale(1.3); }
+.slide-btn { position:absolute; top:50%; transform:translateY(-50%); background:#0008; border:none; padding:5px 10px; cursor:pointer; }
+.prev { left:5px; }
+.next { right:5px; }
+
+/* Apple style smooth fade */
+.fade { animation:fadeIn 0.6s ease; }
+@keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
 
 input { width:100%; margin:8px 0; padding:10px; border-radius:8px; border:none; }
 </style></head>
-<body><div class="hero">
+<body><div class="hero fade">
 <h1>Luxury Experience</h1>
 <p>Premium products</p>
-</div><div class="cart" onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</div><div class="products" id="productList"></div><!-- CART --><div class="cart-page" id="cartPage">
+</div><div class="cart" onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</div><div class="products" id="productList"></div><div class="cart-page" id="cartPage">
 <h2>Cart</h2>
 <div id="cartItems"></div>
-<div class="total" id="totalPrice"></div>
+<div id="totalPrice"></div>
 <button onclick="openCheckout()">Checkout</button>
-<button class="back-btn" onclick="toggleCart()">Close</button>
-</div><!-- PRODUCT DETAIL --><div class="product-detail" id="productDetail">
-<div class="box" id="detailBox"></div>
-</div><!-- CHECKOUT PAGE --><div class="checkout-page" id="checkoutPage">
-<div class="box">
-<h2>Checkout</h2>
-<div id="checkoutSummary"></div><!-- CUSTOMER FORM --><input id="custName" placeholder="Full Name" />
-<input id="custEmail" placeholder="Email" />
-<input id="custPhone" placeholder="Phone" />
-<input id="custAddress" placeholder="Address" /><button onclick="placeOrder()">Place Order</button> <button class="back-btn" onclick="closeCheckout()">Back to Cart</button>
-
-</div>
-</div><!-- SUCCESS PAGE --><div class="order-success" id="successPage">
-<div class="box">
-<h2>Order Placed ✅</h2>
-<p id="orderInfo"></p>
-<button onclick="goHome()">Back to Home</button>
-</div>
+</div><div class="product-detail" id="productDetail">
+<div class="box fade" id="detailBox"></div>
 </div><script>
-const products = [
-{
-name:"Watch",
-price:5000,
-imgs:[
+const products=[
+{name:"Watch",price:5000,imgs:[
 "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
 "https://images.unsplash.com/photo-1518544801976-3e159e50e5bb",
-"https://images.unsplash.com/photo-1508057198894-247b23fe5ade"
-]
-},
-{
-name:"Shoes",
-price:3000,
-imgs:[
-"https://images.unsplash.com/photo-1542291026-7eec264c27ff",
-"https://images.unsplash.com/photo-1600180758890-6b94519a8ba3",
-"https://images.unsplash.com/photo-1528701800489-20be3c76d0a4"
-]
-},
-{
-name:"Shirt",
-price:800,
-imgs:[
-"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
-"https://images.unsplash.com/photo-1593030761757-71fae45fa0e7",
-"https://images.unsplash.com/photo-1583743814966-8936f37f4f77"
-]
-}
+"https://images.unsplash.com/photo-1508057198894-247b23fe5ade"]}
 ];
 
 let cart=[];
+let currentSlide=0;
+let currentImgs=[];
+let autoSlideInterval;
 
 function renderProducts(){
 const el=document.getElementById('productList'); el.innerHTML='';
 products.forEach((p,i)=>{
-const added=cart.find(x=>x.name===p.name);
 el.innerHTML+=`<div class="card" onclick="openDetail(${i})">
 <img src="${p.imgs[0]}">
 <div class="card-content">
 <h3>${p.name}</h3>
 <p>₹${p.price}</p>
-<button onclick="event.stopPropagation(); addToCart(${i})" class="${added?'disabled':''}">${added?'Added':'Add to Cart'}</button>
+<button onclick="event.stopPropagation(); addToCart(${i})">Add to Cart</button>
 </div></div>`;
 });
-animateCards();
-}
-
-function addToCart(i){
-cart.push(products[i]);
-document.getElementById('cartCount').innerText=cart.length;
-renderProducts(); renderCart();
-}
-
-function removeItem(index){
-cart.splice(index,1);
-document.getElementById('cartCount').innerText=cart.length;
-renderCart(); renderProducts();
-}
-
-function renderCart(){
-const el=document.getElementById('cartItems'); el.innerHTML='';
-let total=0;
-cart.forEach((item,i)=>{
-total+=item.price;
-el.innerHTML+=`<div class="cart-item">${item.name} ₹${item.price} <button onclick="removeItem(${i})">X</button></div>`;
-});
-document.getElementById('totalPrice').innerText="Total: ₹"+total;
-}
-
-function toggleCart(){
-const c=document.getElementById('cartPage');
-c.style.display=c.style.display==='block'?'none':'block';
 }
 
 function openDetail(i){
-const box=document.getElementById('detailBox');
-const p=products[i];
-let gallery=`<img id='mainImg' src="${p.imgs[0]}">`;
-let thumbs="<div class='thumbs'>";
-p.imgs.forEach(img=>{
-thumbs+=`<img src="${img}" onclick="changeImg('${img}')">`;
-});
-thumbs+="</div>";
+currentImgs=products[i].imgs;
+currentSlide=0;
 
-box.innerHTML=`<div class='gallery'>${gallery}${thumbs}</div>
-<h2>${p.name}</h2><p>₹${p.price}</p>
-<button onclick="addToCart(${i})">Add to Cart</button>
-<br><button class='back-btn' onclick="closeDetail()">Back</button>`;
+const box=document.getElementById('detailBox');
+box.innerHTML=`
+<div class='slider'>
+<button class='slide-btn prev' onclick='prevSlide()'>‹</button>
+<img id='slideImg'>
+<button class='slide-btn next' onclick='nextSlide()'>›</button>
+</div>
+<h2>${products[i].name}</h2>
+<p>₹${products[i].price}</p>
+<button onclick='addToCart(${i})'>Add to Cart</button>`;
 
 document.getElementById('productDetail').style.display='flex';
+updateSlide();
+startAutoSlide();
+addSwipe();
 }
 
-function changeImg(src){ document.getElementById('mainImg').src=src; }
-function closeDetail(){ document.getElementById('productDetail').style.display='none'; }
+function updateSlide(){ document.getElementById('slideImg').src=currentImgs[currentSlide]; }
+function nextSlide(){ currentSlide=(currentSlide+1)%currentImgs.length; updateSlide(); }
+function prevSlide(){ currentSlide=(currentSlide-1+currentImgs.length)%currentImgs.length; updateSlide(); }
 
-function openCheckout(){
-if(cart.length===0){ alert("Cart is empty!"); return; }
-let summary=''; let total=0;
-cart.forEach(item=>{ total+=item.price; summary+=`<p>${item.name} - ₹${item.price}</p>`; });
-summary+=`<h3>Total: ₹${total}</h3>`;
-document.getElementById('checkoutSummary').innerHTML=summary;
-document.getElementById('checkoutPage').style.display='flex';
-document.getElementById('cartPage').style.display='none';
+function startAutoSlide(){
+clearInterval(autoSlideInterval);
+autoSlideInterval=setInterval(()=>nextSlide(),3000);
 }
 
-function closeCheckout(){
-document.getElementById('checkoutPage').style.display='none';
-document.getElementById('cartPage').style.display='block';
-}
-
-function placeOrder(){
-const name=document.getElementById('custName').value;
-const email=document.getElementById('custEmail').value;
-const phone=document.getElementById('custPhone').value;
-const address=document.getElementById('custAddress').value;
-
-if(!name||!email||!phone||!address){ alert("Please fill all details"); return; }
-
-let total=cart.reduce((sum,i)=>sum+i.price,0);
-
-document.getElementById('orderInfo').innerText=`Name: ${name}\nTotal: ₹${total}`;
-
-document.getElementById('checkoutPage').style.display='none';
-document.getElementById('successPage').style.display='flex';
-
-cart=[];
-document.getElementById('cartCount').innerText=0;
-renderCart(); renderProducts();
-}
-
-function goHome(){
-document.getElementById('successPage').style.display='none';
-document.getElementById('cartPage').style.display='none';
-}
-
-window.onclick=(e)=>{
-if(e.target.id==='productDetail') closeDetail();
-if(e.target.id==='checkoutPage') closeCheckout();
-};
-
-function animateCards(){
-document.querySelectorAll('.card').forEach((card,i)=>{
-setTimeout(()=>card.classList.add('show'), i*100);
+function addSwipe(){
+let startX=0;
+const img=document.getElementById('slideImg');
+img.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
+img.addEventListener('touchend',e=>{
+let endX=e.changedTouches[0].clientX;
+if(startX-endX>50) nextSlide();
+if(endX-startX>50) prevSlide();
 });
+}
+
+function addToCart(i){ cart.push(products[i]); document.getElementById('cartCount').innerText=cart.length; }
+
+function toggleCart(){
+document.getElementById('cartPage').style.display='block';
 }
 
 renderProducts();
