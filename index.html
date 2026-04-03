@@ -1,8 +1,13 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Luxury Store</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"><style>
+<title>Luxury Store</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<style>
 body { margin:0; font-family:'Poppins',sans-serif; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white; overflow-x:hidden; }
 .hero { height:60vh; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; background:linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1604147706283-2b3c2b1c1b75'); background-size:cover; }
 .hero h1 { font-family:'Playfair Display',serif; font-size:52px; }
@@ -45,18 +50,31 @@ button.disabled { background:gray; cursor:not-allowed; }
 @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
 
 input { width:100%; margin:8px 0; padding:10px; border-radius:8px; border:none; }
-</style></head>
-<body><div class="hero fade">
+</style>
+</head>
+<body>
+
+<div class="hero fade">
 <h1>Luxury Experience</h1>
 <p>Premium products</p>
-</div><div class="cart" onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</div><div class="products" id="productList"></div><div class="cart-page" id="cartPage">
+</div>
+
+<div class="cart" onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</div>
+
+<div class="products" id="productList"></div>
+
+<div class="cart-page" id="cartPage">
 <h2>Cart</h2>
 <div id="cartItems"></div>
 <div id="totalPrice"></div>
 <button onclick="openCheckout()">Checkout</button>
-</div><div class="product-detail" id="productDetail">
+</div>
+
+<div class="product-detail" id="productDetail">
 <div class="box fade" id="detailBox"></div>
-</div><script>
+</div>
+
+<script>
 const products=[
 {name:"Watch",price:5000,imgs:[
 "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
@@ -130,5 +148,7 @@ document.getElementById('cartPage').style.display='block';
 }
 
 renderProducts();
-</script></body>
+</script>
+
+</body>
 </html>
